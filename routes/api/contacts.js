@@ -1,25 +1,27 @@
-const express = require('express')
+const express = require("express");
+const controllers = require("../../controllers/contacts");
+const { asyncWrapper } = require("../../utils");
+const { validateBody } = require("../../middleware");
+const addTemplate = require("../../templates/contacts");
 
-const router = express.Router()
+const router = express.Router();
 
-router.get('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+router.get("/", asyncWrapper(controllers.get));
 
-router.get('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+router.get("/:id", asyncWrapper(controllers.getById));
 
-router.post('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+router.post(
+  "/",
+  validateBody(addTemplate, "missing required name field"),
+  asyncWrapper(controllers.post)
+);
 
-router.delete('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+router.delete("/:id", asyncWrapper(controllers.removeById));
 
-router.put('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+router.put(
+  "/:id",
+  validateBody(addTemplate, "missing fields"),
+  asyncWrapper(controllers.put)
+);
 
-module.exports = router
+module.exports = router;
