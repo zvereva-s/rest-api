@@ -4,7 +4,8 @@ function validateBody(template, message) {
   function func(req, _, next) {
     const { error } = template.validate(req.body);
     if (error) {
-      next(requestError(400, (error.message = message)));
+      error.message = message;
+      next(requestError(400, error.message));
     }
     next();
   }
