@@ -3,7 +3,7 @@ const router = express.Router();
 
 const controllers = require("../../controllers/auth");
 const { asyncWrapper } = require("../../utils");
-const { validateBody, auth } = require("../../middleware");
+const { validateBody, auth, upload } = require("../../middleware");
 const { templates } = require("../../models/user");
 
 router.post(
@@ -32,6 +32,13 @@ router.patch(
   ),
   asyncWrapper(controllers.updateSubscription)
 );
+router.patch(
+  "/avatars",
+  auth,
+  upload.single("avatar"),
+  asyncWrapper(controllers.updateAvatar)
+);
+
 router.get("/current", auth, asyncWrapper(controllers.getCurrent));
 router.get("/logout", auth, asyncWrapper(controllers.logout));
 
