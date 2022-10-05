@@ -6,6 +6,8 @@ const { asyncWrapper } = require("../../utils");
 const { validateBody, auth, upload } = require("../../middleware");
 const { templates } = require("../../models/user");
 
+// sign Up //
+
 router.post(
   "/register",
   validateBody(
@@ -14,7 +16,14 @@ router.post(
   ),
   asyncWrapper(controllers.reqister)
 );
+router.get("/verify/:verificationToken", asyncWrapper(controllers.verifyEmail));
+router.post(
+  "/users/verify",
+  validateBody(templates.verifyEmailTemplate, "Missing required field email"),
+  asyncWrapper(controllers.resendVerifyEmail)
+);
 
+// sign In //
 router.post(
   "/login",
   validateBody(

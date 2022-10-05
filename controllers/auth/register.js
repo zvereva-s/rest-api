@@ -1,8 +1,10 @@
 const bcrypt = require("bcryptjs");
 const gravatar = require("gravatar");
+const { nanoid } = require("nanoid");
 
+const { BASE_URL } = process.env;
 const { User } = require("../../models/user");
-const { requestError } = require("../../utils");
+const { requestError, sendMail } = require("../../utils");
 
 async function register(req, res) {
   const { email, password, subscription } = req.body;
@@ -14,21 +16,34 @@ async function register(req, res) {
   // const salt = await bcrypt.genSalt(10);
   const hashPassword = await bcrypt.hash(password, 10);
   const avatarURL = gravatar.url(email);
+  const verificationToken = nanoid();
   const result = await User.create({
     email,
     password: hashPassword,
     subscription,
     avatarURL,
+    verificationToken,
   });
-  res
-    .status(201)
-    .json({
-      user: {
-        email: result.email,
-        subscription: result.subscription,
-        avatarURL,
-      },
-    });
+
+  const mail = {
+    to: email,
+    subject: "Confirm the registration on contacts application",
+    html: `<a href="${BASE_URL}/api/users/verify/${verificationToken}" target="_blank">Push to confirm</a>`,
+  };
+
+  await sendMail
+    .sendMail(mail)
+    .then(() => console.log("Email send success"))
+    .catch((error) => console.log(error.message));
+
+  res.status(201).json({
+    user: {
+      email: result.email,
+      subscription: result.subscription,
+      avatarURL,
+      verificationToken: result.verificationToken,
+    },
+  });
 }
 
 module.exports = register;
